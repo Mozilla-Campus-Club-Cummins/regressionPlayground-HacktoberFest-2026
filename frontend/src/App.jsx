@@ -170,7 +170,7 @@ export default function App() {
         </div>
 
         {model && <MetricsPanel model={model} sampleCount={data.length} passCount={decisions.pass} failCount={decisions.fail} />}
-        <Explanation />
+        <Explanation data={data} model={model}/>
       </main>
       <footer className="footer"><span>Built for curious minds.</span><span>Regression Playground <i>·</i> learn by changing one thing at a time</span></footer>
     </div>
