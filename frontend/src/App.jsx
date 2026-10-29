@@ -81,11 +81,12 @@ export default function App() {
     if (data.length === 0) {
       setModel(null);
       setLoading(false);
-      setError("");
+
+      // Preserve upload validation errors when the dataset is cleared.
       return;
     }
 
-    // A regression line needs at least two distinct x values
+    // A regression line needs at least two distinct x values.
     if (new Set(data.map((point) => point.x)).size < 2) {
       setModel(null);
       setLoading(false);
@@ -140,7 +141,6 @@ export default function App() {
     }
 
     const values = model.predictions.map((point) => point.predicted);
-
     const min = Math.min(...values);
     const max = Math.max(...values);
 
@@ -167,6 +167,12 @@ export default function App() {
   // Handle dataset upload
   function handleUpload(points, name) {
     if (!Array.isArray(points)) {
+      setData([]);
+      setDatasetName("");
+      setModel(null);
+      setPointX("");
+      setPointY("");
+      setThreshold(40);
       setError(
         typeof name === "string" ? name : "The uploaded dataset is invalid.",
       );
@@ -178,6 +184,12 @@ export default function App() {
         (point) => !Number.isFinite(point.x) || !Number.isFinite(point.y),
       )
     ) {
+      setData([]);
+      setDatasetName("");
+      setModel(null);
+      setPointX("");
+      setPointY("");
+      setThreshold(40);
       setError("The dataset contains invalid numeric values.");
       return;
     }
@@ -209,8 +221,11 @@ export default function App() {
     setData(DEFAULT_DATA);
     setDatasetName("Study hours · default");
     setError("");
+    setPointX("");
+    setPointY("");
   }
-  //New function to clear dataset
+
+  // Clear the current dataset
   function clearDataset() {
     setData([]);
     setDatasetName("");
@@ -227,9 +242,11 @@ export default function App() {
     setData(DEFAULT_DATA);
     setDatasetName("Study hours · default");
     setError("");
+    setPointX("");
+    setPointY("");
   }
 
-  // Add a new observation
+  // Add an observation
   function addPoint(event) {
     event.preventDefault();
 
@@ -351,6 +368,7 @@ export default function App() {
         <section className="dataset-bar" aria-label="Dataset controls">
           <div className="dataset-heading">
             <span className="eyebrow">YOUR DATA</span>
+
             <strong>
               {data.length} {data.length === 1 ? "observation" : "observations"}
             </strong>
@@ -361,6 +379,7 @@ export default function App() {
             onReset={resetDataset}
             datasetName={datasetName}
           />
+
           <button
             type="button"
             className="button button-secondary"
@@ -386,48 +405,6 @@ export default function App() {
               ×
             </button>
           </div>
-          <aside className="data-side-panel">
-            <div className="points-heading"><div><span className="eyebrow">OBSERVATIONS</span><h2>Shape the data</h2></div><span className="point-count">{data.length}</span></div>
-            <form className="add-point-form" onSubmit={addPoint}>
-              <label><span>Hours</span><input aria-label="Study hours" inputMode="decimal" placeholder="e.g. 2.5" value={pointX} onChange={(event) => setPointX(event.target.value)} /></label>
-              <label><span>Marks</span><input aria-label="Exam marks" inputMode="decimal" placeholder="e.g. 58" value={pointY} onChange={(event) => setPointY(event.target.value)} /></label>
-              <button className="icon-button add-button" type="submit" aria-label="Add observation" title="Add observation"><Plus size={18} /></button>
-            </form>
-            <p className="point-help">Add an observation to see how one more student shifts the fit.</p>
-            
-<div className="points-list" aria-label="Dataset observations">
-  <div className="point-row point-header" aria-hidden="true">
-    <span>No.</span>
-    <span>Hours</span>
-    <span className="point-mark">Marks</span>
-    <span></span>
-  </div>
-
-  {[...data].map((point, index) => (
-    <div className="point-row" key={`${point.x}-${index}`}>
-      <span className="point-index">
-        {String(index + 1).padStart(2, '0')}
-      </span>
-      <span>{point.x.toFixed(1)} <small>hrs</small></span>
-      <span className="point-mark">
-        {point.y.toFixed(1)} <small>marks</small>
-      </span>
-      <button
-        className="icon-button remove-button"
-        type="button"
-        onClick={() => removePoint(index)}
-        aria-label={`Remove observation ${index + 1}`}
-        title="Remove observation"
-      >
-        <Trash2 size={14} />
-      </button>
-    </div>
-  ))}
-</div>
-
-              
-          </aside>
-        </div>
         )}
 
         {data.length > 0 ? (
@@ -514,6 +491,13 @@ export default function App() {
               </p>
 
               <div className="points-list" aria-label="Dataset observations">
+                <div className="point-row point-header" aria-hidden="true">
+                  <span>No.</span>
+                  <span>Hours</span>
+                  <span className="point-mark">Marks</span>
+                  <span />
+                </div>
+
                 {data.map((point, index) => (
                   <div className="point-row" key={`${point.x}-${index}`}>
                     <span className="point-index">
